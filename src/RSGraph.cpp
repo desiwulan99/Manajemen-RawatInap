@@ -1,10 +1,13 @@
+// Implementasi graph rumah sakit (BFS dan struktur peta)
 #include "RSGraph.h"
  
+// Queue sederhana untuk BFS (Breadth First Search)
 BFSQueue::BFSQueue() {
     f = 0;
     r = 0;
 }
  
+// Menambahkan nilai ke dalam queue (enqueue) untuk proses BFS
 void BFSQueue::push(int val) {
     data[r++] = val;
 }
@@ -17,6 +20,7 @@ bool BFSQueue::isEmpty() {
     return f == r;
 }
  
+// Graph rumah sakit dengan representasi adjacency matrix
 RSGraph::RSGraph() {
     for (int i = 0; i < 6; i++) {
         parent[i] = -1;
@@ -24,6 +28,7 @@ RSGraph::RSGraph() {
             adj[i][j] = 0;
         }
     }
+
     // Layout Peta
     adj[0][1] = 1; adj[1][0] = 1; // Lobi <-> Lorong
     adj[1][2] = 1; adj[2][1] = 1; // Lorong <-> VIP
@@ -32,6 +37,7 @@ RSGraph::RSGraph() {
     adj[4][5] = 1; adj[5][4] = 1; // Kelas 2 <-> Kelas 3
 }
  
+// BFS untuk mencari jalur terpendek pada graph rumah sakit 
 void RSGraph::doBFS(int start, int target) {
     for (int i = 0; i < 6; i++) parent[i] = -1;
  

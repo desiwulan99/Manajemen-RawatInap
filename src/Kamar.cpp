@@ -1,7 +1,8 @@
-#include "Kamar.h"
-#include "raylib.h"
-#include "AppFont.h"
+#include "Kamar.h"      // Implementasi manajemen kamar rumah sakit
+#include "raylib.h"     // Library grafis Raylib
+#include "AppFont.h"    // Font global aplikasi
 
+// Konstruktor: inisialisasi data kamar awal
 KamarManager::KamarManager() {
     kamar[0] = {"V01", "VIP",    false};
     kamar[1] = {"V02", "VIP",    false};
@@ -11,9 +12,12 @@ KamarManager::KamarManager() {
     kamar[5] = {"202", "KELAS2", false};
     kamar[6] = {"301", "KELAS3", false};
     kamar[7] = {"302", "KELAS3", false};
+
+    // Pointer rotasi untuk sistem pembagian kamar tiap kelas
     frontVIP = 0; frontK1 = 2; frontK2 = 4; frontK3 = 6;
 }
 
+// Fungsi alokasi kamar berdasarkan tipe
 int KamarManager::allocateRoom(string tipe) {
     int start, end, *fp;
 
@@ -34,6 +38,7 @@ int KamarManager::allocateRoom(string tipe) {
     return -1;
 }
 
+// Menampilkan status kamar di GUI
 void KamarManager::drawGUI(int startX, int startY) {
     int boxW = 125, boxH = 80, padding = 15;
 
@@ -41,11 +46,15 @@ void KamarManager::drawGUI(int startX, int startY) {
         int x = startX + i * (boxW + padding);
         int y = startY;
 
+        // Warna berdasarkan status kamar
         Color bgColor     = kamar[i].terisi ? Fade(RED,   0.15f) : Fade(GREEN, 0.15f);
         Color borderColor = kamar[i].terisi ? MAROON       : DARKGREEN;
 
+        // Background & Border Kamar
         DrawRectangle(x, y, boxW, boxH, bgColor);
         DrawRectangleLines(x, y, boxW, boxH, borderColor);
+
+        // Menampilkan informasi kamar (nomor, tipe, status, dan nama pasien jika terisi) pada tampilan GUI
         DrawTextEx(gFont, TextFormat("Kamar %s (%s)", kamar[i].nomor.c_str(), kamar[i].tipe.c_str()),
                  {(float)(x + 8), (float)(y + 8)}, 10, 1, DARKGRAY);
 

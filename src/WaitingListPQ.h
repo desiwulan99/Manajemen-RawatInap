@@ -1,8 +1,8 @@
-#ifndef WAITING_LIST_PQ_H
-#define WAITING_LIST_PQ_H
+#ifndef WAITING_LIST_PQ_H       // Guard agar file header tidak di-include berulang
+#define WAITING_LIST_PQ_H       // Header guard (sudah diproses)
  
-#include "Pasien.h"
-#include <string>
+#include "Pasien.h"             // Struktur data pasien
+#include <string>               // Library string
 using namespace std;
  
 // 6. PRIORITY QUEUE (Antrean IGD Prioritas Tertinggi)
@@ -12,8 +12,10 @@ struct NodePQ {
     NodePQ* next;
 };
  
+// Class priority queue untuk waiting list
 class WaitingListPQ {
     NodePQ* head;
+    
 public:
     WaitingListPQ();
     bool empty();

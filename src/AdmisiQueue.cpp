@@ -1,13 +1,13 @@
-#include "AdmisiQueue.h"
-#include "raylib.h"
-#include "AppFont.h"
+#include "AdmisiQueue.h"        // Implementasi queue admisi pasien
+#include "raylib.h"             // Library GUI Raylib
+#include "AppFont.h"            // Font global aplikasi
 
 AdmisiQueue::AdmisiQueue() {
-    last = NULL;
+    last = NULL;                // Inisialisasi queue kosong
 }
 
 bool AdmisiQueue::empty() {
-    return last == NULL;
+    return last == NULL;        // Mengecek apakah queue kosong
 }
 
 // Penyisipan di akhir (enqueue) - mengikuti pola insertEnd circular
@@ -56,6 +56,7 @@ Pasien AdmisiQueue::dequeue() {
     return p;
 }
 
+// Menampilkan isi queue pada GUI
 void AdmisiQueue::drawGUI(int x, int y) {
     if (last == NULL) {
         DrawTextEx(gFont, "Kosong", {(float)x, (float)y}, 12, 1, GRAY);

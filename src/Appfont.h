@@ -1,5 +1,5 @@
 #ifndef APP_FONT_H      // Mencegah header di-include lebih dari sekali
-#define APP_FONT_H
+#define APP_FONT_H      // Header guard (sudah diproses)
 
 #include "raylib.h"    // Menggunakan tipe Font dari Raylib
 

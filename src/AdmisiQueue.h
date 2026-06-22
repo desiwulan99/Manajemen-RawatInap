@@ -1,7 +1,7 @@
-#ifndef ADMISI_QUEUE_H
-#define ADMISI_QUEUE_H
- 
-#include "Pasien.h"
+#ifndef ADMISI_QUEUE_H      // Guard agar header tidak di-include berulang
+#define ADMISI_QUEUE_H      // Header guard (sudah diproses)
+
+#include "Pasien.h"         // Struktur data pasien
  
 // 5. CIRCULAR LINKED LIST QUEUE (Antrean Admisi - FIFO)
 // Menggunakan circular single linked list dengan pointer tail (last)
@@ -12,6 +12,7 @@ struct NodeQ {
     NodeQ* next;
 };
  
+// Class queue admisi pasien (FIFO menggunakan circular linked list)
 class AdmisiQueue {
     NodeQ* last; // pointer ke ekor (tail) circular linked list
  

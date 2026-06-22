@@ -1,7 +1,8 @@
-#include "AVLTree.h"
-#include <algorithm>
+#include "AVLTree.h"    // Implementasi AVL Tree untuk data pasien
+#include <algorithm>    // Untuk fungsi max()
 using namespace std;
- 
+
+// Konstruktor node AVL
 NodeAVL::NodeAVL(Pasien p) {
     key    = p.id;
     data   = p;
@@ -9,17 +10,20 @@ NodeAVL::NodeAVL(Pasien p) {
     right  = NULL;
     height = 1;
 }
- 
+
+// Menghitung tinggi node
 int height(NodeAVL* n) {
     if (n == NULL) return 0;
     return n->height;
 }
  
+// Menghitung balance factor node
 int getBalance(NodeAVL* n) {
     if (n == NULL) return 0;
     return height(n->left) - height(n->right);
 }
  
+// Rotasi kanan untuk balancing AVL
 NodeAVL* rightRotate(NodeAVL* y) {
     NodeAVL* x  = y->left;
     NodeAVL* T2 = x->right;
@@ -35,6 +39,7 @@ NodeAVL* rightRotate(NodeAVL* y) {
     return x;
 }
  
+// Rotasi kiri untuk balancing AVL
 NodeAVL* leftRotate(NodeAVL* x) {
     NodeAVL* y  = x->right;
     NodeAVL* T2 = y->left;
@@ -50,6 +55,7 @@ NodeAVL* leftRotate(NodeAVL* x) {
     return y;
 }
  
+// Insert node ke AVL Tree
 NodeAVL* insertAVL(NodeAVL* node, Pasien p) {
     // Penyisipan BST normal
     if (node == NULL) return new NodeAVL(p);
@@ -84,6 +90,7 @@ NodeAVL* insertAVL(NodeAVL* node, Pasien p) {
     return node;
 }
  
+// Pencarian node berdasarkan ID
 NodeAVL* searchAVL(NodeAVL* root, int id) {
     if (root == NULL || root->key == id) return root;
     if (id < root->key) return searchAVL(root->left,  id);

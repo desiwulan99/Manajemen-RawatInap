@@ -1,6 +1,6 @@
-#ifndef RS_GRAPH_H
-#define RS_GRAPH_H
- 
+#ifndef RS_GRAPH_H          // Guard agar file header tidak di-include berulang
+#define RS_GRAPH_H          // Header guard (sudah diproses)
+
 // 3. GRAPH & BFS (Peta Rute)
 // Queue sederhana untuk BFS
 struct BFSQueue {
@@ -12,7 +12,8 @@ struct BFSQueue {
     int pop();
     bool isEmpty();
 };
- 
+
+// Class graph rumah sakit
 class RSGraph {
 public:
     // 0: Lobi, 1: Lorong Utama, 2: VIP, 3: KELAS 1, 4: KELAS 2, 5: KELAS 3

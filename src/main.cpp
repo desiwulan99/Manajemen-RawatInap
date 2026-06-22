@@ -1,79 +1,90 @@
-#include <iostream>
-#include <string>
-#include <cstring>
-#include "raylib.h"
+#include <iostream>             // Input dan output standar
+#include <string>               // Tipe data string
+#include <cstring>              // Fungsi manipulasi string C
+#include <cctype>               // Fungsi pengecekan karakter
+#include "raylib.h"             // Library grafis Raylib
 
-#define RAYGUI_IMPLEMENTATION
-#include "raygui.h"
+#define RAYGUI_IMPLEMENTATION   // Implementasi RayGUI
+#include "raygui.h"             // Library GUI untuk Raylib
+
 using namespace std;
 
 // ==== HEADER MODUL HASIL PEMECAHAN ====
-#include "Pasien.h"
-#include "AuthHashTable.h"
-#include "SimpleTicker.h"
-#include "RSGraph.h"
-#include "ActivityStack.h"
-#include "AdmisiQueue.h"
-#include "WaitingListPQ.h"
-#include "AVLTree.h"
-#include "Kamar.h"
-#include "AppFont.h"
+#include "Pasien.h"             // Data dan struktur pasien
+#include "AuthHashTable.h"      // Hash Table autentikasi pengguna
+#include "SimpleTicker.h"       // Ticker/pesan berjalan
+#include "RSGraph.h"            // Struktur Graph rumah sakit
+#include "ActivityStack.h"      // Stack riwayat aktivitas
+#include "AdmisiQueue.h"        // Queue proses admisi pasien
+#include "WaitingListPQ.h"      // Priority Queue daftar tunggu
+#include "AVLTree.h"            // AVL Tree penyimpanan data
+#include "Kamar.h"              // Data dan manajemen kamar
+#include "AppFont.h"            // Pengaturan font aplikasi
 
 // ==== DEFINISI GLOBAL FONT ====
 Font gFont;
 
 // ==== MAIN PROGRAM GUI ====
 
-enum AppScreen { LOGIN_SCREEN, MAIN_SCREEN };
+enum AppScreen { LOGIN_SCREEN, MAIN_SCREEN };   // Enum untuk menentukan layar/halaman aplikasi yang sedang aktif
 
 int main() {
-    SetConfigFlags(FLAG_WINDOW_RESIZABLE);
+    SetConfigFlags(FLAG_WINDOW_RESIZABLE);      // Mengatur jendela agar dapat diubah ukurannya
 
+    // Lebar(W) dan Tinggi(H) tampilan jendela
     const int virtualWidth  = 1200;
     const int virtualHeight = 650;
 
+    // Membuat jendela dan menentukan ukuran minimum jendela
     InitWindow(virtualWidth, virtualHeight, "Sistem Antrean Rawat Inap RS");
     SetWindowMinSize(800, 600);
 
+    // Membuat render texture untuk scaling tampilan dan Menghaluskan hasil scaling
     RenderTexture2D target = LoadRenderTexture(virtualWidth, virtualHeight);
     SetTextureFilter(target.texture, TEXTURE_FILTER_BILINEAR);
 
-    GuiLoadStyleDefault();
-    gFont = LoadFontEx("C:/Windows/Fonts/arialbd.ttf", 32, 0, 250);
-    SetTextureFilter(gFont.texture, TEXTURE_FILTER_BILINEAR);
-    GuiSetFont(gFont);
-    GuiSetStyle(DEFAULT, TEXT_SIZE, 12);
+    GuiLoadStyleDefault();                                          // Memuat style default RayGUI
+    gFont = LoadFontEx("C:/Windows/Fonts/arialbd.ttf", 32, 0, 250); // Memuat font Arial Bold
+    SetTextureFilter(gFont.texture, TEXTURE_FILTER_BILINEAR);       // Menghaluskan tampilan font
+    GuiSetFont(gFont);                                              // Mengatur font GUI
+    GuiSetStyle(DEFAULT, TEXT_SIZE, 12);                            // Mengatur ukuran teks GUI
     
+    // Objek database autentikasi & Menambah akun pengguna (Admin)
     AuthHashTable authDB;
     authDB.insertUser("feby",   "feby123");
     authDB.insertUser("desi",   "desi123");
     authDB.insertUser("khayla", "khayla123");
 
-    AdmisiQueue   admisi;
-    WaitingListPQ waitingList;
-    ActivityStack log;
-    KamarManager  kamar;
-    SimpleTicker  ticker;
-    RSGraph       mapGraph;
+    AdmisiQueue   admisi;      // Queue admisi pasien
+    WaitingListPQ waitingList; // Priority Queue daftar tunggu
+    ActivityStack log;         // Stack log aktivitas
+    KamarManager  kamar;       // Manajemen kamar
+    SimpleTicker  ticker;      // Ticker informasi berjalan
+    RSGraph       mapGraph;    // Graph peta rumah sakit
 
+    // Root AVL Tree arsip pasien
     NodeAVL* arsip = NULL;
     int autoID     = 1;
     AppScreen currentScreen = LOGIN_SCREEN;
 
+    // Input username & password 
     char username[32] = ""; bool userEdit = false;
     char password[32] = ""; bool passEdit = false;
-    string loginFeedback = "";
+    string loginFeedback = "";  // Pesan hasil login
 
-    int    currentMsgIndex  = 0;
+    // Variabel untuk mengatur pesan dan posisi ticker berjalan
+    int    currentMsgIndex  = 0;                                    
     string currentTickerMsg = ticker.getMessage(currentMsgIndex);
     int    tickerX          = virtualWidth;
 
+    // Status popup
     bool showReg      = false;
     bool showCheckout = false;
     bool showDelWL    = false;
     bool showSearch   = false;
     bool showMap      = false;
 
+    // Variabel untuk menyimpan input pengguna dan status pengeditan field
     char nameInput[64] = "";
     char idInput[16]   = "";
     char roomInput[16] = "";
@@ -81,17 +92,20 @@ int main() {
     bool idEditMode    = false;
     bool roomEditMode  = false;
 
+    // Variabel untuk menyimpan pilihan menu aktif dan pesan informasi aplikasi
     int    asalActive    = 0;
     int    jaminanActive = 0;
     int    kamarActive   = 0;
     int    mapTarget     = 1;
+    string namaErrorMsg       = "";
     string searchResult       = "Nama | Jaminan";
     string checkoutFeedback   = "Menunggu input...";
     string delWlFeedback      = "Menunggu input...";
 
-    SetTargetFPS(60);
+    SetTargetFPS(60);                   // Mengatur FPS aplikasi menjadi 60
 
     while (!WindowShouldClose()) {
+
         // LOGIKA FULLSCREEN
         if (IsKeyPressed(KEY_F11)) {
             if (!IsWindowFullscreen()) {
@@ -166,7 +180,8 @@ int main() {
 
             if (!showReg && !showCheckout && !showDelWL && !showSearch && !showMap) {
                 if (GuiButton((Rectangle){20, (float)btnY, (float)btnW, (float)btnH}, "REGISTER")) {
-                    showReg = true;
+                    showReg      = true;
+                    namaErrorMsg = "";
                     strcpy(nameInput, "");
                 }
                 if (GuiButton((Rectangle){20.0f + (btnW + btnGap), (float)btnY, (float)btnW, (float)btnH}, "DELETE WL")) {
@@ -308,6 +323,11 @@ int main() {
                 if (GuiTextBox((Rectangle){popup.x + 20, popup.y + 65, 280, 30},
                                nameInput, 64, nameEditMode)) nameEditMode = !nameEditMode;
 
+                // Tampilkan pesan error di bawah kotak nama
+                if (!namaErrorMsg.empty()) {
+                    DrawTextEx(gFont, namaErrorMsg.c_str(), {popup.x + 20, popup.y + 100}, 11, 1, RED);
+                }
+
                 DrawTextEx(gFont, "Asal Masuk:", {popup.x + 20, popup.y + 115}, 12, 1, DARKGRAY);
                 GuiToggleGroup((Rectangle){popup.x + 20, popup.y + 130, 80, 30}, "IGD;POLI", &asalActive);
 
@@ -326,32 +346,61 @@ int main() {
                                    "VIP;KELAS1;KELAS2;KELAS3", &kamarActive);
 
                 if (GuiButton((Rectangle){popup.x + 20, popup.y + 350, 130, 40}, "SIMPAN")) {
-                    Pasien p;
-                    p.id       = autoID++;
-                    p.nama     = nameInput;
-                    p.asalMasuk = (asalActive == 0) ? "IGD" : "POLI";
+                    string tempNama = nameInput;
 
-                    if      (jaminanActive == 0) p.jaminan = "BPJS";
-                    else if (jaminanActive == 1) p.jaminan = "UMUM";
-                    else                          p.jaminan = "ASURANSI";
-
-                    if (jaminanActive == 2) {
-                        if      (kamarActive == 0) p.hakKamar = "Standar";
-                        else if (kamarActive == 1) p.hakKamar = "Deluxe";
-                        else                        p.hakKamar = "VIP";
-                    } else {
-                        if      (kamarActive == 0) p.hakKamar = "VIP";
-                        else if (kamarActive == 1) p.hakKamar = "KELAS1";
-                        else if (kamarActive == 2) p.hakKamar = "KELAS2";
-                        else                        p.hakKamar = "KELAS3";
+                    // ---- VALIDASI NAMA ----
+                    bool namaValid = !tempNama.empty();
+                    if (namaValid) {
+                        // Tidak boleh mengandung angka atau karakter selain huruf dan spasi
+                        for (char c : tempNama) {
+                            if (!isalpha((unsigned char)c) && c != ' ') {
+                                namaValid = false;
+                                break;
+                            }
+                        }
+                    }
+                    // Tidak boleh hanya spasi saja
+                    if (namaValid) {
+                        bool adaHuruf = false;
+                        for (char c : tempNama) {
+                            if (isalpha((unsigned char)c)) { adaHuruf = true; break; }
+                        }
+                        if (!adaHuruf) namaValid = false;
                     }
 
-                    admisi.enqueue(p);
-                    log.push("Registrasi baru: " + p.nama);
+                    if (namaValid) {
+                        Pasien p;
+                        p.id       = autoID++;
+                        p.nama     = tempNama;
+                        p.asalMasuk = (asalActive == 0) ? "IGD" : "POLI";
+
+                        if      (jaminanActive == 0) p.jaminan = "BPJS";
+                        else if (jaminanActive == 1) p.jaminan = "UMUM";
+                        else                          p.jaminan = "ASURANSI";
+
+                        if (jaminanActive == 2) {
+                            if      (kamarActive == 0) p.hakKamar = "Standar";
+                            else if (kamarActive == 1) p.hakKamar = "Deluxe";
+                            else                        p.hakKamar = "VIP";
+                        } else {
+                            if      (kamarActive == 0) p.hakKamar = "VIP";
+                            else if (kamarActive == 1) p.hakKamar = "KELAS1";
+                            else if (kamarActive == 2) p.hakKamar = "KELAS2";
+                            else                        p.hakKamar = "KELAS3";
+                        }
+
+                        admisi.enqueue(p);
+                        log.push("Registrasi baru: " + p.nama);
+                        namaErrorMsg = "";
+                        showReg = false;
+                    } else {
+                        namaErrorMsg = "Nama tidak boleh kosong / mengandung angka!";
+                    }
+                }
+                if (GuiButton((Rectangle){popup.x + 170, popup.y + 350, 130, 40}, "BATAL")) {
+                    namaErrorMsg = "";
                     showReg = false;
                 }
-                if (GuiButton((Rectangle){popup.x + 170, popup.y + 350, 130, 40}, "BATAL"))
-                    showReg = false;
             }
 
             // ---- POPUP CHECKOUT ----
@@ -419,11 +468,12 @@ int main() {
             }
         }
 
-        EndTextureMode();
+        EndTextureMode();                   // Mengakhiri proses render ke RenderTexture
 
-        BeginDrawing();
-        ClearBackground(BLACK);
+        BeginDrawing();                     // Memulai proses menggambar ke layar
+        ClearBackground(BLACK);             // Membersihkan layar dengan warna hitam
 
+        // Mengatur sumber render texture, posisi tampilan agar terpusat di layar, serta ukuran hasil scaling
         Rectangle sourceRec = {0.0f, 0.0f, (float)target.texture.width, (float)-target.texture.height};
         Rectangle destRec   = {
             (GetScreenWidth()  - ((float)virtualWidth  * scale)) * 0.5f,
@@ -433,11 +483,11 @@ int main() {
         };
 
         DrawTexturePro(target.texture, sourceRec, destRec, (Vector2){0, 0}, 0.0f, WHITE);
-        EndDrawing();
+        EndDrawing();                        // Mengakhiri proses menggambar frame
     }
 
-    UnloadFont(gFont);
-    UnloadRenderTexture(target);
-    CloseWindow();
-    return 0;
+    UnloadFont(gFont);                      // Membebaskan memori font yang digunakan
+    UnloadRenderTexture(target);            // Membebaskan memori RenderTexture
+    CloseWindow();                          // Menutup jendela aplikasi
+    return 0;                               // Mengakhiri program dengan status sukses
 }

@@ -1,5 +1,7 @@
+// Implementasi sistem pesan berjalan (ticker info rumah sakit)
 #include "SimpleTicker.h"
  
+// Konstruktor SimpleTicker: mengisi data pesan dan mengurutkan berdasarkan prioritas
 SimpleTicker::SimpleTicker() {
     size = 5;
     // Data 
@@ -21,6 +23,7 @@ SimpleTicker::SimpleTicker() {
     }
 }
  
+// Mengambil pesan ticker berdasarkan index (looping dengan modulus)
 string SimpleTicker::getMessage(int index) {
     return arr[index % size].text;
 }

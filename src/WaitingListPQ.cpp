@@ -1,36 +1,41 @@
-#include "WaitingListPQ.h"
-#include "raylib.h"
-#include "AppFont.h"
+// Implementasi priority queue untuk daftar tunggu pasien rumah sakit
+#include "WaitingListPQ.h" // Header priority queue waiting list
+#include "raylib.h"        // Library GUI Raylib
+#include "AppFont.h"       // Font global aplikasi
 
+// Konstruktor: inisialisasi list kosong
 WaitingListPQ::WaitingListPQ() {
     head = NULL;
 }
 
+// Mengecek apakah priority queue kosong
 bool WaitingListPQ::empty() {
     return head == NULL;
 }
 
+// Menambahkan pasien berdasarkan prioritas
 void WaitingListPQ::enqueue(Pasien p) {
-    int pr     = (p.asalMasuk == "IGD") ? 1 : 2;
+    int pr     = (p.asalMasuk == "IGD") ? 1 : 2;    // IGD lebih prioritas
     NodePQ* n  = new NodePQ;
     n->data     = p;
     n->priority = pr;
     n->next     = NULL;
 
     if (head == NULL || pr < head->priority) {
-        n->next = head;
+        n->next = head;                             // Masukkan di depan jika prioritas lebih tinggi
         head    = n;
         return;
     }
 
     NodePQ* cur = head;
     while (cur->next != NULL && cur->next->priority <= pr) {
-        cur = cur->next;
+        cur = cur->next;                            // Cari posisi sesuai prioritas
     }
     n->next   = cur->next;
     cur->next = n;
 }
 
+// Ambil pasien sesuai tipe kamar
 Pasien WaitingListPQ::dequeueSuitable(string tipe) {
     Pasien kosong = {0, "", "", "", ""};
     if (head == NULL) return kosong;
@@ -52,6 +57,7 @@ Pasien WaitingListPQ::dequeueSuitable(string tipe) {
     return kosong;
 }
 
+// Hapus pasien berdasarkan ID
 bool WaitingListPQ::removeByID(int id) {
     NodePQ* cur  = head;
     NodePQ* prev = NULL;
@@ -69,6 +75,7 @@ bool WaitingListPQ::removeByID(int id) {
     return false;
 }
 
+// Menampilkan waiting list di GUI
 void WaitingListPQ::drawGUI(int x, int y) {
     if (head == NULL) {
         DrawTextEx(gFont, "Kosong", {(float)x, (float)y}, 12, 1, GRAY);
