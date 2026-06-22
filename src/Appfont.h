@@ -1,7 +1,8 @@
-#ifndef APP_FONT_H
+#ifndef APP_FONT_H      // Mencegah header di-include lebih dari sekali
 #define APP_FONT_H
-#include "raylib.h"
 
-extern Font gFont;
+#include "raylib.h"    // Menggunakan tipe Font dari Raylib
 
-#endif
+extern Font gFont;     // Deklarasi font global yang didefinisikan di file lain
+
+#endif                 // Akhir header guard
